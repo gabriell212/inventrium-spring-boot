@@ -75,7 +75,7 @@ public class User {
 
     /* Relations */
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     private Company company;
 
@@ -88,5 +88,6 @@ public class User {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.isActive = true;
+        this.role = RoleType.VIEWER;
     }
 }
