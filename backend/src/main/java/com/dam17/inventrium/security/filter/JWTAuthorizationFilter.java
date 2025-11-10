@@ -1,15 +1,17 @@
 package com.dam17.inventrium.security.filter;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.dam17.inventrium.security.SecurityConstants;
 
 import jakarta.servlet.FilterChain;
@@ -33,12 +35,19 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter{
         }
 
         String token = header.replace(SecurityConstants.BEARER, "");
-        String user = JWT.require(Algorithm.HMAC512(secretKey))
+
+        DecodedJWT jwt = JWT.require(Algorithm.HMAC512(secretKey))
             .build()
-            .verify(token)
-            .getSubject();
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Arrays.asList());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            .verify(token);
+
+        String username = jwt.getSubject();
+        String role = jwt.getClaim("role").asString();
+
+        if(username != null && role != null) {
+            var authority = new SimpleGrantedAuthority("ROLE_" + role);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, List.of(authority));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
         filterChain.doFilter(request, response);
     }
 }

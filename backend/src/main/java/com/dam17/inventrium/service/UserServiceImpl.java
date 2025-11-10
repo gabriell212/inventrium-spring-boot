@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.dam17.inventrium.entity.User;
 import com.dam17.inventrium.repository.UserRepository;
+import com.dam17.inventrium.util.EntityUnwrapper;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -21,13 +21,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(Long id) {
         Optional<User> user = userRepository.findById(id);
-        return unwrapUser(user, id);
+        return EntityUnwrapper.unwrapEntity(user, id, User.class);
     }
 
     @Override
     public User getUser(String username) {
         Optional<User> user = userRepository.findByUsername(username);
-        return unwrapUser(user);
+        return EntityUnwrapper.unwrapEntity(user, User.class);
     }
 
     @Override
@@ -39,19 +39,5 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
-    }
-
-    static User unwrapUser(Optional<User> entity, Long id) {
-        if(entity.isPresent())
-            return entity.get();
-        else
-            throw new EntityNotFoundException();
-    }
-
-    static User unwrapUser(Optional<User> entity) {
-        if(entity.isPresent())
-            return entity.get();
-        else
-            throw new EntityNotFoundException();
     }
 }

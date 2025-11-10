@@ -3,6 +3,7 @@ package com.dam17.inventrium.entity;
 import java.time.LocalDateTime;
 
 import com.dam17.inventrium.enums.RoleType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -75,6 +76,7 @@ public class User {
 
     /* Relations */
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id")
     private Company company;

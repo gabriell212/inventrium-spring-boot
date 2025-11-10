@@ -47,8 +47,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        User user = (User) authResult.getPrincipal();
+        
         String token = JWT.create()
-            .withSubject(authResult.getName())
+            .withSubject(user.getUsername())
+            .withClaim("role", user.getRole().name())
+            .withClaim("userId", user.getId())
+            .withClaim("companyId", user.getCompany() != null ? user.getCompany().getId() : null)
             .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION))
             .sign(Algorithm.HMAC512(secretKey));
         response.addHeader(SecurityConstants.AUTHORIZATION, SecurityConstants.BEARER + token);
