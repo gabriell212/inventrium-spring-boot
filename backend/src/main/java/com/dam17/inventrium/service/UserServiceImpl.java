@@ -2,6 +2,7 @@ package com.dam17.inventrium.service;
 
 import java.util.Optional;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.dam17.inventrium.entity.User;
@@ -15,6 +16,7 @@ import lombok.AllArgsConstructor;
 public class UserServiceImpl implements UserService {
     
     private UserRepository userRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public User getUser(Long id) {
@@ -23,7 +25,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUser(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        return unwrapUser(user);
+    }
+
+    @Override
     public User saveUser(User user) {
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -33,6 +42,13 @@ public class UserServiceImpl implements UserService {
     }
 
     static User unwrapUser(Optional<User> entity, Long id) {
+        if(entity.isPresent())
+            return entity.get();
+        else
+            throw new EntityNotFoundException();
+    }
+
+    static User unwrapUser(Optional<User> entity) {
         if(entity.isPresent())
             return entity.get();
         else

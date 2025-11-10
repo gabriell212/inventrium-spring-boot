@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -26,13 +25,17 @@ public class UserController {
 
     private UserService userService;
 
+
+    // Path "/authenticate" is reserved for authentication by JWT security!
+    // See security -> SecurityConfig.java
+
     @GetMapping("/{id}")
-    public ResponseEntity<User> getMethodName(@PathVariable Long id) {
+    public ResponseEntity<User> findById(@PathVariable Long id) {
         return new ResponseEntity<>(userService.getUser(id), HttpStatus.OK);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> postMethodName(@Valid @RequestBody User user) {
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         userService.saveUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }

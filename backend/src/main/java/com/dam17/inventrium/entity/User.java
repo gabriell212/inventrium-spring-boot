@@ -88,6 +88,6 @@ public class User {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.isActive = true;
-        this.role = RoleType.VIEWER;
+        this.role = RoleType.PENDING;
     }
 }

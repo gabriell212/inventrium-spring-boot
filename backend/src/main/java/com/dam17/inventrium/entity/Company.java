@@ -41,6 +41,11 @@ public class Company {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @NotBlank(message = "CUI cannot be blank")
+    @NonNull
+    @Column(name = "cui", nullable = false)
+    private String cui;
+
     @NotBlank(message = "Registration number cannot be blank")
     @NonNull
     @Column(name = "registration_number", nullable = false)
@@ -60,6 +65,11 @@ public class Company {
     @NonNull
     @Column(name = "address", nullable = false)
     private String address;
+
+    @NotBlank(message = "Authentication password cannot be blank")
+    @NonNull
+    @Column(name = "authPassword", nullable = false)
+    private String authPassword;
 
     @Column(name = "isActive", nullable = false)
     private Boolean isActive;
