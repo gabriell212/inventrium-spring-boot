@@ -73,6 +73,7 @@ public class CompanyController {
             .body(savedCompany);
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteCompany(@PathVariable Long id) {
         companyService.deleteCompany(id);

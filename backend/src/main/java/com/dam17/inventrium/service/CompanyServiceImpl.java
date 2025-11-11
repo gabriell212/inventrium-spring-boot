@@ -41,6 +41,7 @@ public class CompanyServiceImpl implements CompanyService{
 
     @Override
     public void deleteCompany(Long id) {
+        Company company = getCompany(id);
 
         // Dettach users from company before deleting it
         List<User> users = getUsers(id);
@@ -48,6 +49,15 @@ public class CompanyServiceImpl implements CompanyService{
             user.setCompany(null);
         }
         userRepository.saveAll(users);
+
+        // Dettach owner
+        User owner = company.getOwner();
+        if(owner != null) {
+            company.setOwner(null);
+            companyRepository.save(company);
+        }
+        
+        // Delete the company
         companyRepository.deleteById(id);
     }
 

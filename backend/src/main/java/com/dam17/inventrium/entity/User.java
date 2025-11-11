@@ -58,6 +58,7 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @JsonIgnore
     @NotBlank(message = "Password cannot be blank")
     @NonNull
     @Column(name = "password", nullable = false)

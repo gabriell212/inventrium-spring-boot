@@ -9,6 +9,8 @@ import com.dam17.inventrium.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
+
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,5 +43,6 @@ public class UserController {
         userService.saveUser(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+    
     
 }
