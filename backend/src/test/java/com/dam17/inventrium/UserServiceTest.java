@@ -55,7 +55,7 @@ public class UserServiceTest {
         assertEquals("gabriel", result.getUsername());
     }
 
-    // Check if getUser method works when given an incorrect username
+    // Check if getUserByUsername method works when given an incorrect username
     @Test
     public void testGetUserByUsernameNotFound() {
         when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
@@ -67,14 +67,14 @@ public class UserServiceTest {
     @Test
     public void testSaveUserPreservesFields() {
         User user = new User();
-        user.setUsername("Vica");
+        user.setUsername("Ana");
         user.setPassword("plain");
 
         when(bCryptPasswordEncoder.encode("plain")).thenReturn("encoded");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         User result = userService.saveUser(user);
-        assertEquals("Vica", result.getUsername());
+        assertEquals("Ana", result.getUsername());
         assertEquals("encoded", result.getPassword());
     }
 }

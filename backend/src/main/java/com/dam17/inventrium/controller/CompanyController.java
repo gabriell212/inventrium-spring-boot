@@ -50,7 +50,7 @@ public class CompanyController {
     
     @PreAuthorize("hasRole('PENDING')")
     @PostMapping
-    public ResponseEntity<Company> createCompany(@Valid @RequestBody Company company, Authentication authentication, HttpServletRequest request) {
+    public ResponseEntity<Company> createCompany(@Valid @RequestBody Company company, HttpServletRequest request) {
         // Decode the current JWT
         String token = request.getHeader(SecurityConstants.AUTHORIZATION).replace(SecurityConstants.BEARER, "");
         DecodedJWT jwt = JWT.require(Algorithm.HMAC512(secretKey)).build().verify(token);
