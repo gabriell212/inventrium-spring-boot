@@ -27,7 +27,7 @@ public class UserValidationTest {
     // Check if a valid user passes the validation test
     @Test
     public void testValidUserPassesValidation() {
-        User user = new User("John", "Doe", "johndoe", "john@example.com", "securepass", RoleType.ADMINISTRATOR);
+        User user = new User("Gabriel", "Rotariu", "gabriell212", "rotariu576@gmail.com", "securepass", RoleType.PENDING);
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertTrue(violations.isEmpty(), "Expected no validation errors");
     }
@@ -45,7 +45,7 @@ public class UserValidationTest {
     // Check if a user with all valid fields except the password (which is blank) doesn't pass the validation test
     @Test
     public void testMissingPasswordFailsValidation() {
-        User user = new User("Jane", "Doe", "janedoe", "jane@example.com", " ", RoleType.PENDING);
+        User user = new User("Gabriel", "Rotariu", "gabriell212", "rotariu576@gmail.com", " ", RoleType.PENDING);
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty());
     }

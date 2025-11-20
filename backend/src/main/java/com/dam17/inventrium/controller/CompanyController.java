@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.dam17.inventrium.annotation.CompanyRestricted;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.User;
 import com.dam17.inventrium.security.SecurityConstants;
@@ -73,6 +74,7 @@ public class CompanyController {
             .body(savedCompany);
     }
 
+    @CompanyRestricted(companyIdParam = "id")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteCompany(@PathVariable Long id) {
