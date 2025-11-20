@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignupForm({ toggleLogin } : any){
   let [firstName, setFirstName] = useState(''),
@@ -20,13 +21,54 @@ export default function SignupForm({ toggleLogin } : any){
   passwordCheck: setPasswordCheck
 };
 
+const router = useRouter();
+
 const handleInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
   setFunctions[field](event.target.value);
-  console.log(firstName, lastName, username)
+  if (field === "passwordCheck") {
+    if(password !== event.target.value) {
+      event.target.setCustomValidity("Parolele nu corespund!")
+    } else {
+      event.target.setCustomValidity("");
+    }
+  }
 };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) =>{
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) =>{
     event.preventDefault();
+
+    if (password !== passwordCheck) {
+      return;
+    }
+    
+    const user = { firstName, lastName, username, email, password }
+
+    try {
+      const response = await fetch("http://localhost:8080/user/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(user)
+      });
+
+      if(!response.ok) {
+        const errorData = await response.json();
+        console.error("Registration failed: ", errorData);
+        return;
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Registration failed:", errorData);
+      } else {
+        const data = await response.json();
+        console.log("User registered:", data);
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+    }
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm(){
   let [username, setUsername] = useState('')
@@ -12,12 +13,44 @@ export default function LoginForm(){
     password: setPassword,
   };
 
+  const router = useRouter();
+
   const handleInput = (event: React.ChangeEvent<HTMLInputElement>, field: string) => {
     setFunctions[field](event.target.value);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) =>{
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) =>{
     event.preventDefault();
+
+    
+    const user = { username, password }
+
+    try {
+      const response = await fetch("http://localhost:8080/authenticate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(user)
+      });
+
+      if(!response.ok) {
+        const errorData = await response.json();
+        console.error("Registration failed: ", errorData);
+        return;
+      }
+
+      const token = response.headers.get("Authorization");
+      if(token) {
+        localStorage.setItem("jwt", token);
+        console.log("JWT stored: ", token);
+        router.push("/dashboard");
+      } else {
+        console.warn("No token received in Authorization header")
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+    }
   }
 
   return (
