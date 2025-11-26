@@ -3,15 +3,18 @@ package com.dam17.inventrium.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.User;
 import com.dam17.inventrium.enums.RoleType;
+import com.dam17.inventrium.exception.CompanyNotFoundException;
 import com.dam17.inventrium.repository.CompanyRepository;
 import com.dam17.inventrium.repository.UserRepository;
 import com.dam17.inventrium.util.EntityUnwrapper;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -20,6 +23,7 @@ public class CompanyServiceImpl implements CompanyService{
     
     private CompanyRepository companyRepository;
     private UserRepository userRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public Company getCompany(Long id) {
@@ -30,6 +34,7 @@ public class CompanyServiceImpl implements CompanyService{
     @Override
     public Company saveCompany(Company company, User creator) {
         company.setOwner(creator);
+        company.setAuthPassword(bCryptPasswordEncoder.encode(company.getAuthPassword()));
         Company savedCompany = companyRepository.save(company);
 
         creator.setCompany(savedCompany);
@@ -53,6 +58,10 @@ public class CompanyServiceImpl implements CompanyService{
         // Dettach owner
         User owner = company.getOwner();
         if(owner != null) {
+            owner.setCompany(null);
+            owner.setRole(RoleType.PENDING);
+            userRepository.save(owner);
+            
             company.setOwner(null);
             companyRepository.save(company);
         }
@@ -65,5 +74,19 @@ public class CompanyServiceImpl implements CompanyService{
     public List<User> getUsers(Long id) {
         Company company = getCompany(id);
         return company.getUsers();
+    }
+
+    @Transactional
+    @Override
+    public Company joinCompany(String cui, String authPassword, User user) {
+        Company company = companyRepository.findByCui(cui)
+            .orElseThrow(() -> new CompanyNotFoundException(cui));
+
+        if(!bCryptPasswordEncoder.matches(authPassword, company.getAuthPassword())) {
+            throw new IllegalArgumentException("Invalid company credentials!");
+        }
+
+        user.setCompany(company);
+        return company;
     }
 }

@@ -7,6 +7,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.dam17.inventrium.annotation.CompanyRestricted;
+import com.dam17.inventrium.dto.JoinCompanyRequest;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.User;
 import com.dam17.inventrium.security.SecurityConstants;
@@ -27,7 +28,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/company")
@@ -81,4 +81,33 @@ public class CompanyController {
         companyService.deleteCompany(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PreAuthorize("hasRole('PENDING')")
+    @PostMapping("/join")
+    public ResponseEntity<?> joinCompany(@Valid @RequestBody JoinCompanyRequest request, HttpServletRequest httpRequest) {
+        String token = httpRequest.getHeader(SecurityConstants.AUTHORIZATION).replace(SecurityConstants.BEARER, "");
+        DecodedJWT jwt = JWT.require(Algorithm.HMAC512(secretKey)).build().verify(token);
+
+        Long userId = jwt.getClaim("userId").asLong();
+        User user = userService.getUser(userId);
+
+        if(user.getCompany() != null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User already belongs to a company!");
+        }
+
+        Company company = companyService.joinCompany(request.getCui(), request.getAuthPassword(), user);
+
+        String newToken = JWT.create()
+            .withSubject(user.getUsername())
+            .withClaim("role", user.getRole().name())
+            .withClaim("userId", user.getId())
+            .withClaim("companyId", company.getId())
+            .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.TOKEN_EXPIRATION))
+            .sign(Algorithm.HMAC512(secretKey));
+
+        return ResponseEntity.ok()
+            .header(SecurityConstants.AUTHORIZATION, SecurityConstants.BEARER + newToken)
+            .body(company);
+    }
+    
 }

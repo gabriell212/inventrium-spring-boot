@@ -1,6 +1,7 @@
 package com.dam17.inventrium.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -82,7 +83,7 @@ public class Company {
 
     @JsonIgnore
     @OneToMany(mappedBy = "company")
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "owner_id", nullable = true)

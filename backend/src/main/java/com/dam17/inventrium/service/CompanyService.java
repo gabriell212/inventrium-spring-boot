@@ -10,4 +10,5 @@ public interface CompanyService {
     Company saveCompany(Company company, User creator);
     void deleteCompany(Long id);
     List<User> getUsers(Long id);
+    Company joinCompany(String cui, String authPassword, User user);
 }
