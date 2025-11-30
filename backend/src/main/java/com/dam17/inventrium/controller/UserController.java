@@ -1,11 +1,15 @@
 package com.dam17.inventrium.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dam17.inventrium.annotation.CompanyRestricted;
 import com.dam17.inventrium.entity.User;
+import com.dam17.inventrium.enums.RoleType;
 import com.dam17.inventrium.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
@@ -15,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,5 +48,16 @@ public class UserController {
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         userService.saveUser(user);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+
+    /* Company related user endpoints */
+
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PutMapping("/company/{companyId}/users/{userId}/role")
+    public ResponseEntity<User> updateUserRole(@PathVariable Long userId, @RequestParam RoleType newRole, HttpServletRequest request) {
+        User updatedUser = userService.updateUserRole(userId, newRole);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 }

@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { jwtDecode } from "jwt-decode";
+
+interface JwtPayload {
+    companyId?: number | null;
+}
 
 export default function LoginForm(){
   let [username, setUsername] = useState('')
@@ -44,7 +49,14 @@ export default function LoginForm(){
       if(token) {
         localStorage.setItem("jwt", token);
         console.log("JWT stored: ", token);
-        router.push("/dashboard");
+
+        const decoded: JwtPayload = jwtDecode(token);
+
+        if(!decoded.companyId) {
+            router.push("/affiliation")
+        } else {
+            router.push("/dashboard");
+        }
       } else {
         console.warn("No token received in Authorization header")
       }

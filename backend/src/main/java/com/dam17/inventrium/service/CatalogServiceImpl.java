@@ -2,10 +2,12 @@ package com.dam17.inventrium.service;
 
 import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.dam17.inventrium.dto.ProductUpdateDto;
 import com.dam17.inventrium.entity.Category;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.Product;
@@ -40,20 +42,22 @@ public class CatalogServiceImpl implements CatalogService{
     }
 
     @Override
-    public Product updateProduct(Long id, Product productData, User updatedBy) {
+    public Product updateProduct(Long id, ProductUpdateDto dto, User updatedBy) {
         Product existingProduct = productRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(id, Product.class));
 
-        existingProduct.setName(productData.getName());
-        existingProduct.setSku(productData.getSku());
-        existingProduct.setDescription(productData.getDescription());
-        existingProduct.setPurchasePrice(productData.getPurchasePrice());
-        existingProduct.setBasePrice(productData.getBasePrice());
-        existingProduct.setRequiresBatchTracking(productData.getRequiresBatchTracking());
+        existingProduct.setName(dto.getName());
+        existingProduct.setSku(dto.getSku());
+        existingProduct.setDescription(dto.getDescription());
+        existingProduct.setPurchasePrice(dto.getPurchasePrice());
+        existingProduct.setBasePrice(dto.getBasePrice());
+        existingProduct.setRequiresBatchTracking(dto.getRequiresBatchTracking());
 
-        existingProduct.setCategory(productData.getCategory());
-        existingProduct.setCompany(productData.getCompany());
+        Category category = categoryRepository.findById(dto.getCategoryId())
+            .orElseThrow(() -> new EntityNotFoundException(dto.getCategoryId(), Category.class));
+        existingProduct.setCategory(category);
 
+        // Internal fields
         existingProduct.setUpdatedBy(updatedBy);
         existingProduct.setUpdatedAt(LocalDateTime.now());
 
@@ -104,6 +108,14 @@ public class CatalogServiceImpl implements CatalogService{
             .orElseThrow(() -> new EntityNotFoundException(id, Category.class));
         
         categoryRepository.delete(existingCategory);
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(Long categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new EntityNotFoundException(categoryId, Category.class));
+
+        return productRepository.findByCategory(category);
     }
 
 }

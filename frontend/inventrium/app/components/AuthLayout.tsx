@@ -15,7 +15,7 @@ export default function AuthLayout({
           height={300}
         />
       </div>
-      <div className="h-full w-2/3 flex items-center justify-center">
+      <div className="h-full w-2/3 flex items-center justify-center overflow-auto">
         {children}
       </div>
     </div>

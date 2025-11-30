@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dam17.inventrium.annotation.CompanyRestricted;
+import com.dam17.inventrium.dto.ProductUpdateDto;
 import com.dam17.inventrium.entity.Category;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.Product;
@@ -18,6 +19,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @AllArgsConstructor
@@ -67,13 +72,13 @@ public class CatalogController {
     @CompanyRestricted(companyIdParam = "companyId")
     @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
     @PutMapping("/products/{id}")
-    public ResponseEntity<Product> updateProduct(@Valid @RequestBody Product product, @PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<Product> updateProduct(@Valid @RequestBody ProductUpdateDto dto, @PathVariable Long id, HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.AUTHORIZATION).replace(SecurityConstants.BEARER, "");
 
         Long userId = jwtUtils.extractUserId(token);
         User updatedBy = userService.getUser(userId);
 
-        Product updatedProduct = catalogService.updateProduct(id, product, updatedBy);
+        Product updatedProduct = catalogService.updateProduct(id, dto, updatedBy);
         return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
     
@@ -129,6 +134,14 @@ public class CatalogController {
     public ResponseEntity<HttpStatus> deleteCategory(@PathVariable Long id, HttpServletRequest request) {
         catalogService.deleteCategory(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
+    @GetMapping("/categories/{categoryId}/products")
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
+        List<Product> products = catalogService.getProductsByCategory(categoryId);
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
     
 }

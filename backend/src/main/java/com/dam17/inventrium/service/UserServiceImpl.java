@@ -6,6 +6,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.dam17.inventrium.entity.User;
+import com.dam17.inventrium.enums.RoleType;
+import com.dam17.inventrium.exception.EntityNotFoundException;
 import com.dam17.inventrium.repository.UserRepository;
 import com.dam17.inventrium.util.EntityUnwrapper;
 
@@ -39,5 +41,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public User updateUserRole(Long userId, RoleType newRole) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException(userId, User.class));
+        
+        user.setRole(newRole);
+        return userRepository.save(user);
     }
 }

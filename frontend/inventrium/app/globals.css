@@ -52,18 +52,18 @@ form h2{
   color: var(--light-beige);
 }
 
-form input[type="submit"]{
+form input[type="submit"], #affiliation-div a{
   border: 2px solid var(--mustard-yellow);
   color: var(--light-beige);
   transition: color .1s, border .1s, background .1s;
 }
 
-form input[type="submit"]:hover{
+form input[type="submit"]:hover, #affiliation-div a:hover{
   background: transparent;
   border: 2px solid var(--mustard-yellow);
   color: var(--mustard-yellow);
 }
 
-form{
+form, #affiliation-div{
   box-shadow: 20px 20px 20px #000000aa;
 }
