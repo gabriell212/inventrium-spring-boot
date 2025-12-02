@@ -8,6 +8,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.dam17.inventrium.annotation.CompanyRestricted;
 import com.dam17.inventrium.dto.JoinCompanyRequest;
+import com.dam17.inventrium.dto.UserDTO;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.User;
 import com.dam17.inventrium.security.SecurityConstants;
@@ -18,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/company")
@@ -109,5 +113,24 @@ public class CompanyController {
             .header(SecurityConstants.AUTHORIZATION, SecurityConstants.BEARER + newToken)
             .body(company);
     }
+
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @GetMapping("/{companyId}/users")
+    public ResponseEntity<List<UserDTO>> getCompanyUsers(@PathVariable Long companyId) {
+        List<User> users = companyService.getUsers(companyId);
+
+        List<UserDTO> dtos = users.stream()
+            .map(user -> new UserDTO(
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUsername(),
+                user.getRole()
+            ))
+            .toList();
+        
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
+    }
+    
     
 }
