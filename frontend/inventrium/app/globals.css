@@ -43,16 +43,14 @@ input:not([type="submit"]){
   width: 100%;
 }
 
-form h2, form input[type="submit"]{
-  font-size: 1.3rem;
-}
-
 form h2{
   background: var(--mustard-yellow);
   color: var(--light-beige);
+  font-size: 1.3rem;
 }
 
 form input[type="submit"], #affiliation-div a{
+  font-size: 1.3rem;
   border: 2px solid var(--mustard-yellow);
   color: var(--light-beige);
   transition: color .1s, border .1s, background .1s;
@@ -66,4 +64,14 @@ form input[type="submit"]:hover, #affiliation-div a:hover{
 
 form, #affiliation-div{
   box-shadow: 20px 20px 20px #000000aa;
+}
+
+a:hover p{
+  display: block;
+}
+
+table td, table th{
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #fff;
 }

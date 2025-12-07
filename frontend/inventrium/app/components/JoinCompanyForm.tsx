@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function LoginForm(){
   let [cui, setCui] = useState('')
@@ -43,7 +44,7 @@ export default function LoginForm(){
 
       if(!response.ok) {
         const errorData = await response.json();
-        console.error("Failed: ", errorData);
+        errorData.message.forEach((msg: string) => toast.error(msg));
         return;
       }
 

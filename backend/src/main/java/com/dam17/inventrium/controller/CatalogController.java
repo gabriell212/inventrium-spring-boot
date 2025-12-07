@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dam17.inventrium.annotation.CompanyRestricted;
+import com.dam17.inventrium.dto.CategoryCreateDto;
+import com.dam17.inventrium.dto.ProductCreateDto;
 import com.dam17.inventrium.dto.ProductUpdateDto;
 import com.dam17.inventrium.entity.Category;
 import com.dam17.inventrium.entity.Company;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/companies/{companyId}/catalog")
@@ -51,43 +54,55 @@ public class CatalogController {
         return new ResponseEntity<>(catalogService.getProduct(id), HttpStatus.OK);
     }
     
-
+    
+    
     @CompanyRestricted(companyIdParam = "companyId")
     @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
     @PostMapping("/products")
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product, @PathVariable Long companyId, HttpServletRequest request) {
+    public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductCreateDto dto, @PathVariable Long companyId, HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.AUTHORIZATION).replace(SecurityConstants.BEARER, "");
-
+        
         Long userId = jwtUtils.extractUserId(token);
         User createdBy = userService.getUser(userId);
-
+        
         Company company = companyService.getCompany(companyId);
-
-        Product savedProduct = catalogService.saveProduct(product, createdBy, company);
-
+        
+        Product savedProduct = catalogService.createProduct(dto, createdBy, company);
+        
         return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
     }
-
+    
     @CompanyRestricted(companyIdParam = "companyId")
     @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
     @PutMapping("/products/{id}")
     public ResponseEntity<Product> updateProduct(@Valid @RequestBody ProductUpdateDto dto, @PathVariable Long id, HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.AUTHORIZATION).replace(SecurityConstants.BEARER, "");
-
+        
         Long userId = jwtUtils.extractUserId(token);
         User updatedBy = userService.getUser(userId);
-
+        
         Product updatedProduct = catalogService.updateProduct(id, dto, updatedBy);
         return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
     
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
     @DeleteMapping("/products/{id}")
     public ResponseEntity<HttpStatus> deleteProduct(@PathVariable Long id, HttpServletRequest request) {
         catalogService.deleteProduct(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
     
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER') or hasRole('OPERATOR')")
+    @GetMapping("/products")
+    public ResponseEntity<List<Product>> getProducts(@PathVariable Long companyId) {
+        List<Product> products = catalogService.getProductsByCompany(companyId);
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
+    
+
+
     /* Categories */
     @CompanyRestricted(companyIdParam = "companyId")
     @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER') or hasRole('OPERATOR')")
@@ -96,11 +111,11 @@ public class CatalogController {
         return new ResponseEntity<>(catalogService.getCategory(id), HttpStatus.OK);
     }
     
-
+    
     @CompanyRestricted(companyIdParam = "companyId")
     @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
     @PostMapping("/categories")
-    public ResponseEntity<Category> createCategory(@Valid @RequestBody Category category, @PathVariable Long companyId, HttpServletRequest request) {
+    public ResponseEntity<Category> createCategory(@Valid @RequestBody CategoryCreateDto dto, @PathVariable Long companyId, HttpServletRequest request) {
         String token = request.getHeader(SecurityConstants.AUTHORIZATION).replace(SecurityConstants.BEARER, "");
 
         Long userId = jwtUtils.extractUserId(token);
@@ -108,7 +123,7 @@ public class CatalogController {
 
         Company company = companyService.getCompany(companyId);
 
-        Category savedCategory = catalogService.saveCategory(category, createdBy, company);
+        Category savedCategory = catalogService.createCategory(dto, createdBy, company);
 
         return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
     }
@@ -143,4 +158,13 @@ public class CatalogController {
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
     
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER') or hasRole('OPERATOR')")
+    @GetMapping("/categories")
+    public ResponseEntity<List<Category>> getCategories(@PathVariable Long companyId) {
+        List<Category> categories = catalogService.getCategoriesByCompany(companyId);
+        return ResponseEntity.ok(categories);
+    }
+
+
 }

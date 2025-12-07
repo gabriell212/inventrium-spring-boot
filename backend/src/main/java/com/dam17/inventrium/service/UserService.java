@@ -8,5 +8,7 @@ public interface UserService {
     User getUser(String username);
     User saveUser(User user);
     void deleteUser(Long id);
+    
     User updateUserRole(Long userId, RoleType newRole);
+    void removeUserFromCompany(Long userId);
 }

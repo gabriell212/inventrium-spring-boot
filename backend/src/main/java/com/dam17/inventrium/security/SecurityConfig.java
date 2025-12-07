@@ -19,6 +19,7 @@ import com.dam17.inventrium.security.filter.AuthenticationFilter;
 import com.dam17.inventrium.security.filter.ExceptionHandlerFilter;
 import com.dam17.inventrium.security.filter.JWTAuthorizationFilter;
 import com.dam17.inventrium.security.manager.CustomAuthenticationManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableMethodSecurity
@@ -26,15 +27,19 @@ public class SecurityConfig {
     
     private final CustomAuthenticationManager customAuthenticationManager;
     private final String secretKey;
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
+    private final ObjectMapper mapper;
     
-    public SecurityConfig(CustomAuthenticationManager customAuthenticationManager, @Value("${jwt.secret}") String secretKey) {
+    public SecurityConfig(CustomAuthenticationManager customAuthenticationManager, @Value("${jwt.secret}") String secretKey, ExceptionHandlerFilter exceptionHandlerFilter, ObjectMapper mapper) {
         this.customAuthenticationManager = customAuthenticationManager;
         this.secretKey = secretKey;
+        this.exceptionHandlerFilter = exceptionHandlerFilter;
+        this.mapper = mapper;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        AuthenticationFilter authenticationFilter = new AuthenticationFilter(customAuthenticationManager, secretKey);
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(customAuthenticationManager, secretKey, mapper);
         authenticationFilter.setFilterProcessesUrl("/authenticate");
         http
         .cors(Customizer.withDefaults())
@@ -43,7 +48,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, SecurityConstants.REGISTER_PATH).permitAll()
             .anyRequest().authenticated()
         )
-        .addFilterBefore(new ExceptionHandlerFilter(), AuthenticationFilter.class)
+        .addFilterBefore(exceptionHandlerFilter, AuthenticationFilter.class)
         .addFilter(authenticationFilter)
         .addFilterAfter(new JWTAuthorizationFilter(this.secretKey), AuthenticationFilter.class)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

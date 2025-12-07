@@ -11,6 +11,7 @@ import com.dam17.inventrium.dto.JoinCompanyRequest;
 import com.dam17.inventrium.dto.UserDTO;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.User;
+import com.dam17.inventrium.enums.RoleType;
 import com.dam17.inventrium.security.SecurityConstants;
 import com.dam17.inventrium.service.CompanyService;
 import com.dam17.inventrium.service.UserService;
@@ -28,9 +29,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
@@ -122,6 +123,7 @@ public class CompanyController {
 
         List<UserDTO> dtos = users.stream()
             .map(user -> new UserDTO(
+                user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getUsername(),
@@ -132,5 +134,28 @@ public class CompanyController {
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
     
-    
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PutMapping("/{companyId}/users/{userId}/role")
+    public ResponseEntity<UserDTO> updateUserRole(@PathVariable Long companyId, @PathVariable Long userId, @RequestBody RoleType newRole) {
+        User updated = userService.updateUserRole(userId, newRole);
+
+        UserDTO dto = new UserDTO(
+            updated.getId(),
+            updated.getFirstName(),
+            updated.getLastName(),
+            updated.getUsername(),
+            updated.getRole()
+        );
+
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @DeleteMapping("/{companyId}/users/{userId}")
+    public ResponseEntity<Void> removeUserFromCompany(@PathVariable Long companyId, @PathVariable Long userId) {
+        userService.removeUserFromCompany(userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

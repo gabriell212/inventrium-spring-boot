@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.dam17.inventrium.dto.CategoryCreateDto;
+import com.dam17.inventrium.dto.ProductCreateDto;
 import com.dam17.inventrium.dto.ProductUpdateDto;
 import com.dam17.inventrium.entity.Category;
 import com.dam17.inventrium.entity.Company;
@@ -41,6 +43,33 @@ public class CatalogServiceImpl implements CatalogService{
     }
 
     @Override
+    public Product createProduct(ProductCreateDto dto, User createdBy, Company company) {
+        Product product = new Product();
+        product.setName(dto.getName());
+        product.setSku(dto.getSku());
+        product.setDescription(dto.getDescription());
+        product.setPurchasePrice(dto.getPurchasePrice());
+        product.setBasePrice(dto.getBasePrice());
+        product.setRequiresBatchTracking(dto.getRequiresBatchTracking());
+        product.setCompany(company);
+        product.setCreatedBy(createdBy);
+        product.setUpdatedBy(createdBy);
+        product.setCreatedAt(LocalDateTime.now());
+        product.setUpdatedAt(LocalDateTime.now());
+
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException(dto.getCategoryId(), Category.class));
+            product.setCategory(category);
+        } else {
+            product.setCategory(null);
+        }
+
+
+        return productRepository.save(product);
+    }
+
+    @Override
     public Product updateProduct(Long id, ProductUpdateDto dto, User updatedBy) {
         Product existingProduct = productRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(id, Product.class));
@@ -71,6 +100,11 @@ public class CatalogServiceImpl implements CatalogService{
         productRepository.delete(existingProduct);
     }
 
+    @Override
+    public List<Product> getProductsByCompany(Long companyId) {
+        return productRepository.findByCompanyId(companyId);
+    }
+
 
     /* Categories */
     @Override
@@ -85,6 +119,19 @@ public class CatalogServiceImpl implements CatalogService{
         category.setCompany(company);
         categoryRepository.save(category);
         return category;
+    }
+
+    @Override
+    public Category createCategory(CategoryCreateDto dto, User createdBy, Company company) {
+        Category category = new Category();
+        category.setName(dto.getName());
+        category.setDescription(dto.getDescription());
+        category.setCompany(company);
+        category.setCreatedBy(createdBy);
+        category.setUpdatedBy(createdBy);
+        category.setCreatedAt(LocalDateTime.now());
+        category.setUpdatedAt(LocalDateTime.now());
+        return categoryRepository.save(category);
     }
 
     @Override
@@ -117,4 +164,8 @@ public class CatalogServiceImpl implements CatalogService{
         return productRepository.findByCategory(category);
     }
 
+    @Override
+    public List<Category> getCategoriesByCompany(Long companyId) {
+        return categoryRepository.findByCompanyId(companyId);
+    }
 }

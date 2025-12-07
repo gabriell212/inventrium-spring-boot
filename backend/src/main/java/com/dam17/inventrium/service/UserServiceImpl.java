@@ -51,4 +51,13 @@ public class UserServiceImpl implements UserService {
         user.setRole(newRole);
         return userRepository.save(user);
     }
+
+    @Override
+    public void removeUserFromCompany(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException(userId, User.class));
+
+        user.setCompany(null);
+        userRepository.save(user);
+    }
 }

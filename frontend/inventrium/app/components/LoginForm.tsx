@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
+import toast from "react-hot-toast";
 
 interface JwtPayload {
     companyId?: number | null;
@@ -41,7 +42,7 @@ export default function LoginForm(){
 
       if(!response.ok) {
         const errorData = await response.json();
-        console.error("Registration failed: ", errorData);
+        errorData.message.forEach((msg: string) => toast.error(msg));
         return;
       }
 

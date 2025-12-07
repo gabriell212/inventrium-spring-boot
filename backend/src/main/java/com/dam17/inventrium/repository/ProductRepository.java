@@ -9,4 +9,5 @@ import com.dam17.inventrium.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long>{
     List<Product> findByCategory(Category category);
+    List<Product> findByCompanyId(Long companyId);
 }

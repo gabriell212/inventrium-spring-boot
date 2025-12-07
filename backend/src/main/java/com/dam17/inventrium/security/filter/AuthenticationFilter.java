@@ -2,6 +2,7 @@ package com.dam17.inventrium.security.filter;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.dam17.inventrium.entity.User;
+import com.dam17.inventrium.exception.ErrorResponse;
 import com.dam17.inventrium.security.SecurityConstants;
 import com.dam17.inventrium.security.manager.CustomAuthenticationManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,13 +21,18 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 
-@AllArgsConstructor
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     
     private CustomAuthenticationManager authenticationManager;
     private final String secretKey;
+    private final ObjectMapper mapper;
+
+    public AuthenticationFilter(CustomAuthenticationManager authenticationManager, String secretKey, ObjectMapper mapper) {
+        this.authenticationManager = authenticationManager;
+        this.secretKey = secretKey;
+        this.mapper = mapper;
+    }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -41,7 +48,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write(failed.getMessage());
+        response.setContentType("application/json");
+
+        ErrorResponse error = new ErrorResponse(List.of(failed.getMessage()));
+
+        response.getWriter().write(mapper.writeValueAsString(error));
         response.getWriter().flush();
     }
 
