@@ -5,8 +5,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dam17.inventrium.annotation.CompanyRestricted;
 import com.dam17.inventrium.dto.CategoryCreateDto;
-import com.dam17.inventrium.dto.ProductCreateDto;
-import com.dam17.inventrium.dto.ProductUpdateDto;
+import com.dam17.inventrium.dto.product.ProductCreateDto;
+import com.dam17.inventrium.dto.product.ProductDetailsDto;
+import com.dam17.inventrium.dto.product.ProductUpdateDto;
 import com.dam17.inventrium.entity.Category;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.Product;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
 
 
 
@@ -96,10 +98,63 @@ public class CatalogController {
     @CompanyRestricted(companyIdParam = "companyId")
     @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER') or hasRole('OPERATOR')")
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getProducts(@PathVariable Long companyId) {
+    public ResponseEntity<List<ProductDetailsDto>> getProducts(@PathVariable Long companyId) {
         List<Product> products = catalogService.getProductsByCompany(companyId);
-        return new ResponseEntity<>(products, HttpStatus.OK);
+        List<ProductDetailsDto> dtos = products.stream()
+            .map(product -> {
+            ProductDetailsDto dto = new ProductDetailsDto();
+            dto.setId(product.getId());
+            dto.setName(product.getName());
+            dto.setSku(product.getSku());
+            dto.setDescription(product.getDescription());
+            dto.setPurchasePrice(product.getPurchasePrice());
+            dto.setBasePrice(product.getBasePrice());
+            dto.setRequiresBatchTracking(product.getRequiresBatchTracking());
+            dto.setCreatedAt(product.getCreatedAt());
+            dto.setUpdatedAt(product.getUpdatedAt());
+
+            if (product.getCategory() != null) {
+                dto.setCategoryId(product.getCategory().getId());
+                dto.setCategoryName(product.getCategory().getName());
+            }
+
+            if (product.getCreatedBy() != null) {
+                dto.setCreatedByUsername(product.getCreatedBy().getUsername());
+            }
+            if (product.getUpdatedBy() != null) {
+                dto.setUpdatedByUsername(product.getUpdatedBy().getUsername());
+            }
+
+            return dto;
+        })
+        .toList();
+
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
+
+    @CompanyRestricted(companyIdParam = "companyId")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
+    @GetMapping("/products/details/{id}")
+    public ResponseEntity<ProductDetailsDto> getProductDetails(@PathVariable Long companyId, @PathVariable Long id) {
+        Product product = catalogService.getProduct(id);
+
+        ProductDetailsDto dto = new ProductDetailsDto();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setSku(product.getSku());
+        dto.setDescription(product.getDescription());
+        dto.setPurchasePrice(product.getPurchasePrice());
+        dto.setBasePrice(product.getBasePrice());
+        dto.setRequiresBatchTracking(product.getRequiresBatchTracking());
+        dto.setCreatedAt(product.getCreatedAt());
+        dto.setUpdatedAt(product.getUpdatedAt());
+        dto.setCategoryName(product.getCategory() != null ? product.getCategory().getName() : null);
+        dto.setCreatedByUsername(product.getCreatedBy() != null ? product.getCreatedBy().getUsername() : null);
+        dto.setUpdatedByUsername(product.getUpdatedBy() != null ? product.getUpdatedBy().getUsername() : null);
+
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+    
     
 
 

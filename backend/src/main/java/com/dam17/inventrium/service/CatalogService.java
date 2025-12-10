@@ -3,8 +3,8 @@ package com.dam17.inventrium.service;
 import java.util.List;
 
 import com.dam17.inventrium.dto.CategoryCreateDto;
-import com.dam17.inventrium.dto.ProductCreateDto;
-import com.dam17.inventrium.dto.ProductUpdateDto;
+import com.dam17.inventrium.dto.product.ProductCreateDto;
+import com.dam17.inventrium.dto.product.ProductUpdateDto;
 import com.dam17.inventrium.entity.Category;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.Product;

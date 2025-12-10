@@ -1,4 +1,4 @@
-package com.dam17.inventrium.dto;
+package com.dam17.inventrium.dto.product;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;

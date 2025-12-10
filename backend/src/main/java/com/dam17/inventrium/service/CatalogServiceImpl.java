@@ -7,8 +7,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.dam17.inventrium.dto.CategoryCreateDto;
-import com.dam17.inventrium.dto.ProductCreateDto;
-import com.dam17.inventrium.dto.ProductUpdateDto;
+import com.dam17.inventrium.dto.product.ProductCreateDto;
+import com.dam17.inventrium.dto.product.ProductUpdateDto;
 import com.dam17.inventrium.entity.Category;
 import com.dam17.inventrium.entity.Company;
 import com.dam17.inventrium.entity.Product;
@@ -72,7 +72,7 @@ public class CatalogServiceImpl implements CatalogService{
     @Override
     public Product updateProduct(Long id, ProductUpdateDto dto, User updatedBy) {
         Product existingProduct = productRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException(id, Product.class));
+                .orElseThrow(() -> new EntityNotFoundException(id, Product.class));
 
         existingProduct.setName(dto.getName());
         existingProduct.setSku(dto.getSku());
@@ -81,11 +81,14 @@ public class CatalogServiceImpl implements CatalogService{
         existingProduct.setBasePrice(dto.getBasePrice());
         existingProduct.setRequiresBatchTracking(dto.getRequiresBatchTracking());
 
-        Category category = categoryRepository.findById(dto.getCategoryId())
-            .orElseThrow(() -> new EntityNotFoundException(dto.getCategoryId(), Category.class));
-        existingProduct.setCategory(category);
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException(dto.getCategoryId(), Category.class));
+            existingProduct.setCategory(category);
+        } else {
+            existingProduct.setCategory(null);
+        }
 
-        // Internal fields
         existingProduct.setUpdatedBy(updatedBy);
         existingProduct.setUpdatedAt(LocalDateTime.now());
 
@@ -104,6 +107,7 @@ public class CatalogServiceImpl implements CatalogService{
     public List<Product> getProductsByCompany(Long companyId) {
         return productRepository.findByCompanyId(companyId);
     }
+
 
 
     /* Categories */

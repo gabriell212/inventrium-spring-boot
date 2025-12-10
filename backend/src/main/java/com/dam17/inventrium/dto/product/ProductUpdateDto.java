@@ -1,4 +1,4 @@
-package com.dam17.inventrium.dto;
+package com.dam17.inventrium.dto.product;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -30,6 +30,5 @@ public class ProductUpdateDto {
     @NotNull(message = "Batch tracking selection is required")
     private Boolean requiresBatchTracking;
 
-    @NotNull(message = "Category ID is required")
     private Long categoryId;
 }

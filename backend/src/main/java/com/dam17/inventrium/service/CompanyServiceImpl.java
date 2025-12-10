@@ -73,7 +73,11 @@ public class CompanyServiceImpl implements CompanyService{
     @Override
     public List<User> getUsers(Long id) {
         Company company = getCompany(id);
-        return company.getUsers();
+        User owner = company.getOwner();
+
+        return company.getUsers().stream()
+            .filter(u -> !u.getId().equals(owner.getId()))
+            .toList();
     }
 
     @Transactional
