@@ -1,4 +1,4 @@
-package com.dam17.inventrium.dto;
+package com.dam17.inventrium.dto.category;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

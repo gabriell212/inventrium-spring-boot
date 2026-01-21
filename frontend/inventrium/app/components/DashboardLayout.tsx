@@ -25,6 +25,7 @@ export default function DashboardLayout({
     categories: ["ADMINISTRATOR", "MANAGER"],
     warehouse: ["ADMINISTRATOR", "MANAGER", "OPERATOR"],
     users: ["ADMINISTRATOR"],
+    batches: ["ADMINISTRATOR", "MANAGER", "OPERATOR"],
   };
 
   // Funcție de verificare acces
@@ -115,6 +116,26 @@ export default function DashboardLayout({
               />
               <p className="hidden group-hover:block text-white font-bold text-xs mt-1">
                 Warehouse
+              </p>
+            </Link>
+          )}
+
+          {/* Batches */}
+          {canAccess("batches") && (
+            <Link
+              href="/dashboard/batch"
+              className={`group block flex flex-col justify-center items-center w-full py-1 ${
+                activeLink === "batches" ? "bg-[#222]" : ""
+              }`}
+            >
+              <Image
+                src="/assets/batch-svgrepo-com.svg"
+                alt="Batches link"
+                width={50}
+                height={50}
+              />
+              <p className="hidden group-hover:block text-white font-bold text-xs mt-1">
+                Batches
               </p>
             </Link>
           )}

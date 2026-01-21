@@ -33,6 +33,10 @@ label{
   margin-left: 10px;
 }
 
+button {
+  @apply cursor-pointer;
+}
+
 input:not([type="submit"]){
   border-bottom: 1px solid #000;
   background-color: #eaeaea;

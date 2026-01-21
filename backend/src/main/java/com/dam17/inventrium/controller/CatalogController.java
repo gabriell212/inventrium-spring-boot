@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dam17.inventrium.annotation.CompanyRestricted;
-import com.dam17.inventrium.dto.CategoryCreateDto;
+import com.dam17.inventrium.dto.category.CategoryCreateDto;
 import com.dam17.inventrium.dto.product.ProductCreateDto;
 import com.dam17.inventrium.dto.product.ProductDetailsDto;
 import com.dam17.inventrium.dto.product.ProductUpdateDto;
@@ -133,7 +133,7 @@ public class CatalogController {
     }
 
     @CompanyRestricted(companyIdParam = "companyId")
-    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('MANAGER') or hasRole('OPERATOR')")
     @GetMapping("/products/details/{id}")
     public ResponseEntity<ProductDetailsDto> getProductDetails(@PathVariable Long companyId, @PathVariable Long id) {
         Product product = catalogService.getProduct(id);
